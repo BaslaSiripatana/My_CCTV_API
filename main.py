@@ -1,14 +1,52 @@
-from typing import Optional
-
-from fastapi import FastAPI
+from fastai.vision.all import load_learner
+from fastapi import FastAPI, HTTPException, UploadFile, File
+from torchvision.transforms import Compose, ToTensor
+from PIL import Image
+import io
+import torch
+import uvicorn
 
 app = FastAPI()
 
+# Load the learner object
+learn = load_learner('cctv_model1.pth')
 
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
+# Access the underlying PyTorch model
+model = learn.model
+model.eval()
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Optional[str] = None):
-    return {"item_id": item_id, "q": q}
+# Define image transformation for inference
+transform = Compose([lambda x: ToTensor()(x.convert('RGB'))])
+
+# Endpoint for making predictions
+@app.post("/predict")
+async def predict(file: UploadFile = File(...)):
+    try:
+        # Read the image file
+        contents = await file.read()
+
+        # Preprocess the input image
+        pil_image = Image.open(io.BytesIO(contents))
+        input_tensor = transform(pil_image).unsqueeze(0)
+
+        # Make the prediction using the PyTorch model
+        with torch.no_grad():
+            output = model(input_tensor)
+
+        # Process the output
+        probabilities = torch.nn.functional.softmax(output[0], dim=0)
+        probability, predicted_class = torch.max(probabilities, 0)
+
+        # Convert to Python types
+        probability = probability.item()
+        predicted_class = predicted_class.item()
+
+        # Return prediction result and probability
+        return {"prediction": learn.dls.vocab[predicted_class], "probability": probability}
+
+    except Exception as e:
+        # Handle errors appropriately
+        raise HTTPException(status_code=500, detail=str(e))
+
+if __name__ == "__main__":
+    uvicorn.run(app)

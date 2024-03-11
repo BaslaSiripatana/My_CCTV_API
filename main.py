@@ -5,8 +5,18 @@ from PIL import Image
 import io
 import torch
 import uvicorn
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+# กำหนดค่า CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # ระบุ origin ที่อนุญาต
+    allow_credentials=True,
+    allow_methods=["*"],  # อนุญาตให้ใช้ method ทุกชนิด
+    allow_headers=["*"],  # อนุญาตให้มี headers ทุกชนิด
+)
 
 # Load the learner object
 learn = load_learner('cctv_model1.pth')

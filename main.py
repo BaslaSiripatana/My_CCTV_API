@@ -6,6 +6,7 @@ import io
 import torch
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
+import os
 
 app = FastAPI()
 
@@ -62,5 +63,10 @@ async def predict(file: UploadFile = File(...)):
         # Handle errors appropriately
         raise HTTPException(status_code=500, detail=str(e))
 
+# if __name__ == "__main__":
+#     uvicorn.run(app)
+
 if __name__ == "__main__":
-    uvicorn.run(app)
+    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
+
+

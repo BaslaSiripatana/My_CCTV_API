@@ -20,7 +20,7 @@ app.add_middleware(
 )
 
 # Load the learner object
-learn = load_learner('cctv_model1.pth')
+learn = load_learner('cctv_model2.pth')
 
 # Access the underlying PyTorch model
 model = learn.model
@@ -63,15 +63,12 @@ async def predict(file: UploadFile = File(...)):
         # Handle errors appropriately
         raise HTTPException(status_code=500, detail=str(e))
 
-# if __name__ == "__main__":
-#     uvicorn.run(app)
-
-
-# if __name__ == "__main__":
-#     uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
-
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)), timeout_keep_alive=120, timeout_notify=120)
+    uvicorn.run(app)
+
+
+# if __name__ == "__main__":
+#     uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)), timeout_keep_alive=120, timeout_notify=120)
 
 
 

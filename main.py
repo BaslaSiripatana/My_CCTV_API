@@ -19,7 +19,7 @@ app.add_middleware(
 )
 
 # Load the learner object
-learn = load_learner('cctv_model1.pth')
+learn = load_learner('cctv_model2.pth')
 
 # Access the underlying PyTorch model
 model = learn.model

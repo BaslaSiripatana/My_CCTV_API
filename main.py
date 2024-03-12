@@ -28,6 +28,10 @@ model.eval()
 # Define image transformation for inference
 transform = Compose([lambda x: ToTensor()(x.convert('RGB'))])
 
+@app.get("/")
+async def read_root():
+    return {"Hello": "World"}
+
 # Endpoint for making predictions
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
